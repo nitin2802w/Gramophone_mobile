@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "gramophone",
+    "slug": "gramophone",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d0d14"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.gramophone"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7a16cee5-9541-4b7a-a8ec-c98527b1b2c5"
+      }
+    }
+  }
+}
