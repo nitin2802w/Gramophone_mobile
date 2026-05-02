@@ -79,7 +79,7 @@ def download_image(url, save_path, log_cb=None):
 def get_youtube_thumbnail(query):
     """Get YouTube thumbnail URL for a search query."""
     try:
-        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        with yt_dlp.YoutubeDL({'quiet': True, 'cookiefile': os.path.join(settings.BASE_DIR, 'cookies.txt')}) as ydl:
             info = ydl.extract_info(f'ytsearch1:{query}', download=False)
             if 'entries' in info and info['entries']:
                 return info['entries'][0].get('thumbnail')
@@ -142,6 +142,9 @@ def download_thread(url: str, username: str):
             'format':     'bestaudio/best',
             'noplaylist': True,
             'quiet':      True,
+            'cookiefile': os.path.join(settings.BASE_DIR, 'cookies.txt'),
+            'js-runtimes': 'node',
+            'remote-components': 'ejs:github',
             'postprocessors': [{
                 'key':              'FFmpegExtractAudio',
                 'preferredcodec':   'mp3',
