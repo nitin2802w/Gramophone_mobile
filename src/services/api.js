@@ -1,8 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//  HARDCODED SERVER URL — permanent AWS EC2 Elastic IP
+//  Users never need to enter this. It's always available.
+// ═══════════════════════════════════════════════════════════════════════════════
+const SERVER_URL = 'http://13.127.22.78:8000';
+
 // ── Get stored server URL and token ───────────────────────────────────────────
 export const getServerUrl = async () => {
-  return await AsyncStorage.getItem('serverUrl') || '';
+  return SERVER_URL;
 };
 
 export const getToken = async () => {
@@ -14,25 +20,20 @@ export const getUsername = async () => {
 };
 
 // ── Save credentials ───────────────────────────────────────────────────────────
-export const saveCredentials = async (serverUrl, username, token) => {
-  await AsyncStorage.setItem('serverUrl', serverUrl);
+export const saveCredentials = async (username, token) => {
   await AsyncStorage.setItem('username', username);
   await AsyncStorage.setItem('token', token);
 };
 
 // ── Clear credentials (logout) ─────────────────────────────────────────────────
 export const clearCredentials = async () => {
-  await AsyncStorage.removeItem('serverUrl');
   await AsyncStorage.removeItem('username');
   await AsyncStorage.removeItem('token');
 };
 
 // ── Base API call ──────────────────────────────────────────────────────────────
 export const apiCall = async (path, method = 'GET', body = null) => {
-  const serverUrl = await getServerUrl();
-  const token     = await getToken();
-
-  if (!serverUrl) throw new Error('No server URL set');
+  const token = await getToken();
 
   const opts = {
     method,
@@ -44,7 +45,7 @@ export const apiCall = async (path, method = 'GET', body = null) => {
 
   if (body) opts.body = JSON.stringify(body);
 
-  const res  = await fetch(`${serverUrl}/api${path}`, opts);
+  const res  = await fetch(`${SERVER_URL}/api${path}`, opts);
   const data = await res.json().catch(() => ({}));
   // Attach status so callers can check for 409, 401, etc.
   data._status = res.status;
@@ -52,8 +53,8 @@ export const apiCall = async (path, method = 'GET', body = null) => {
 };
 
 // ── Register user ──────────────────────────────────────────────────────────────
-export const registerUser = async (serverUrl, name) => {
-  const res = await fetch(`${serverUrl}/api/register`, {
+export const registerUser = async (name) => {
+  const res = await fetch(`${SERVER_URL}/api/register`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ name }),
@@ -62,8 +63,8 @@ export const registerUser = async (serverUrl, name) => {
 };
 
 // ── Check server status ────────────────────────────────────────────────────────
-export const checkStatus = async (serverUrl) => {
-  const res = await fetch(`${serverUrl}/api/status`, {
+export const checkStatus = async () => {
+  const res = await fetch(`${SERVER_URL}/api/status`, {
     method:  'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -98,9 +99,8 @@ export const getReadyFiles = async () => {
 
 // ── Get file URL (for downloading to phone) ────────────────────────────────────
 export const getFileUrl = async (filename) => {
-  const serverUrl = await getServerUrl();
-  const token     = await getToken();
-  return `${serverUrl}/api/file/${encodeURIComponent(filename)}?token=${token}`;
+  const token = await getToken();
+  return `${SERVER_URL}/api/file/${encodeURIComponent(filename)}?token=${token}`;
 };
 
 // ── Cleanup server temp files ──────────────────────────────────────────────────

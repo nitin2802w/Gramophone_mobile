@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { checkStatus, clearCredentials, cleanupFiles } from '../services/api';
+import { checkStatus, clearCredentials, cleanupFiles, getServerUrl } from '../services/api';
 
 const C = {
   bg:      '#0d0d14',
@@ -24,9 +24,8 @@ const C = {
 export default function SettingsScreen({ navigation }) {
   const [username,    setUsername]    = useState('');
   const [serverUrl,   setServerUrl]   = useState('');
-  const [editUrl,     setEditUrl]     = useState('');
   const [editName,    setEditName]    = useState('');
-  const [editing,     setEditing]     = useState(null); // 'url' | 'name' | null
+  const [editing,     setEditing]     = useState(null); // 'name' | null
   const [serverOk,    setServerOk]    = useState(null); // null | true | false
   const [checking,    setChecking]    = useState(false);
   const [downloads,   setDownloads]   = useState(0);
@@ -37,10 +36,9 @@ export default function SettingsScreen({ navigation }) {
 
   const loadInfo = async () => {
     const name = await AsyncStorage.getItem('username')  || '';
-    const url  = await AsyncStorage.getItem('serverUrl') || '';
+    const url  = await getServerUrl();
     setUsername(name);
     setServerUrl(url);
-    setEditUrl(url);
     setEditName(name);
   };
 
@@ -48,7 +46,7 @@ export default function SettingsScreen({ navigation }) {
     setChecking(true);
     setServerOk(null);
     try {
-      const status = await checkStatus(serverUrl);
+      const status = await checkStatus();
       setServerOk(status.ok === true);
       setDownloads(status.users || 0);
     } catch (e) {
@@ -58,26 +56,6 @@ export default function SettingsScreen({ navigation }) {
     }
   };
 
-  const saveUrl = async () => {
-    let url = editUrl.trim();
-    if (!url) return;
-    if (!url.startsWith('http')) url = 'https://' + url;
-    if (url.endsWith('/')) url = url.slice(0, -1);
-
-    try {
-      const status = await checkStatus(url);
-      if (!status.ok) {
-        Alert.alert('Cannot Connect', 'Server did not respond correctly.');
-        return;
-      }
-      await AsyncStorage.setItem('serverUrl', url);
-      setServerUrl(url);
-      setEditing(null);
-      Alert.alert('✅ Saved', 'Server URL updated successfully.');
-    } catch (e) {
-      Alert.alert('Error', 'Cannot reach server at that URL.');
-    }
-  };
 
   const saveName = async () => {
     const name = editName.trim();
@@ -232,9 +210,8 @@ export default function SettingsScreen({ navigation }) {
           <View style={styles.divider} />
           <Row
             icon="🌐"
-            label="Server URL"
-            value={serverUrl.replace('https://', '')}
-            onPress={() => setEditing('url')}
+            label="Server"
+            value={serverUrl.replace('http://', '').replace('https://', '')}
           />
         </View>
 
@@ -270,39 +247,6 @@ export default function SettingsScreen({ navigation }) {
           </View>
         )}
 
-        {/* Edit URL */}
-        {editing === 'url' && (
-          <View style={styles.editBox}>
-            <Text style={styles.editLabel}>SERVER URL</Text>
-            <TextInput
-              style={styles.editInput}
-              value={editUrl}
-              onChangeText={setEditUrl}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="url"
-              autoFocus
-              placeholderTextColor={C.muted}
-            />
-            <View style={styles.editActions}>
-              <TouchableOpacity
-                style={styles.editCancelBtn}
-                onPress={() => { setEditing(null); setEditUrl(serverUrl); }}
-              >
-                <Text style={styles.editCancelText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.editSaveBtn}
-                onPress={saveUrl}
-              >
-                <LinearGradient colors={[C.violet, C.rose]}
-                  style={styles.editSaveGrad}>
-                  <Text style={styles.editSaveText}>Save & Test</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
 
         {/* Server Section */}
         <Text style={styles.sectionTitle}>SERVER</Text>

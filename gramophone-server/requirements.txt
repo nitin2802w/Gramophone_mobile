@@ -1,0 +1,7 @@
+django>=4.2,<5.0
+gunicorn>=21.2
+django-cors-headers>=4.3
+yt-dlp>=2024.1
+spotifyscraper>=2.1
+requests>=2.31
+mutagen>=1.47

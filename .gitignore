@@ -55,3 +55,12 @@ users.json
 error.log
 temp/
 static/
+
+# Django server
+gramophone-server/.env
+gramophone-server/db.sqlite3
+gramophone-server/temp/
+gramophone-server/venv/
+gramophone-server/gen_env.py
+gramophone-server/api/migrations/
+*.pyc

@@ -26,7 +26,6 @@ const COLORS = {
 
 export default function WelcomeScreen({ navigation }) {
   const [name,      setName]      = useState('');
-  const [serverUrl, setServerUrl] = useState('');
   const [loading,   setLoading]   = useState(false);
   const [step,      setStep]      = useState('check'); // 'check' | 'welcome'
 
@@ -43,11 +42,10 @@ export default function WelcomeScreen({ navigation }) {
 
   const checkExistingSession = async () => {
     try {
-      const savedUrl   = await AsyncStorage.getItem('serverUrl');
       const savedToken = await AsyncStorage.getItem('token');
       const savedName  = await AsyncStorage.getItem('username');
 
-      if (savedUrl && savedToken && savedName) {
+      if (savedToken && savedName) {
         // Already logged in — go to main app
         navigation.replace('Main');
       } else {
@@ -108,15 +106,6 @@ export default function WelcomeScreen({ navigation }) {
       Alert.alert('Missing Name', 'Please enter your name to continue.');
       return;
     }
-    if (!serverUrl.trim()) {
-      Alert.alert('Missing Server URL', 'Please enter the server URL.');
-      return;
-    }
-
-    // Clean URL
-    let url = serverUrl.trim();
-    if (!url.startsWith('http')) url = 'https://' + url;
-    if (url.endsWith('/')) url = url.slice(0, -1);
 
     setLoading(true);
 
@@ -124,11 +113,11 @@ export default function WelcomeScreen({ navigation }) {
       // Step 1 — Check if server is reachable
       let status;
       try {
-        status = await checkStatus(url);
+        status = await checkStatus();
       } catch (e) {
         Alert.alert(
           'Cannot Reach Server',
-          'Make sure:\n• Server is running\n• URL is correct\n• You have internet connection',
+          'The server might be temporarily down. Please try again in a moment.',
         );
         setLoading(false);
         return;
@@ -141,7 +130,7 @@ export default function WelcomeScreen({ navigation }) {
       }
 
       // Step 2 — Register user
-      const result = await registerUser(url, name.trim());
+      const result = await registerUser(name.trim());
 
       if (result.error) {
         Alert.alert('Registration Failed', result.error);
@@ -149,8 +138,8 @@ export default function WelcomeScreen({ navigation }) {
         return;
       }
 
-      // Step 3 — Save credentials
-      await saveCredentials(url, result.username, result.token);
+      // Step 3 — Save credentials (no URL needed — it's hardcoded)
+      await saveCredentials(result.username, result.token);
 
       // Step 4 — Go to main app
       navigation.replace('Main');
@@ -242,7 +231,7 @@ export default function WelcomeScreen({ navigation }) {
             {/* Welcome text */}
             <Text style={styles.welcomeText}>Welcome</Text>
             <Text style={styles.welcomeSub}>
-              Connect to your server to get started
+              Enter your name to get started
             </Text>
 
             {/* Name Input */}
@@ -258,25 +247,6 @@ export default function WelcomeScreen({ navigation }) {
                   onChangeText={setName}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  returnKeyType="next"
-                />
-              </View>
-            </View>
-
-            {/* Server URL Input */}
-            <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>SERVER URL</Text>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputIcon}>🌐</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="https://grfrendi.serveousercontent.com"
-                  placeholderTextColor={COLORS.muted}
-                  value={serverUrl}
-                  onChangeText={setServerUrl}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="url"
                   returnKeyType="done"
                   onSubmitEditing={handleConnect}
                 />
@@ -299,14 +269,14 @@ export default function WelcomeScreen({ navigation }) {
                 {loading ? (
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
-                  <Text style={styles.connectText}>Connect  →</Text>
+                  <Text style={styles.connectText}>Get Started  →</Text>
                 )}
               </LinearGradient>
             </TouchableOpacity>
 
             {/* Info text */}
             <Text style={styles.infoText}>
-              First time? Just enter your name and server URL.{'\n'}
+              First time? Just enter your name.{'\n'}
               Your account will be created automatically.
             </Text>
           </Animated.View>

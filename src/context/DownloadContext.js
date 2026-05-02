@@ -8,6 +8,7 @@
 
 import React, { createContext, useContext, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getServerUrl } from '../services/api';
 import {
   addPlaylist, addSong, downloadFileToPhone,
   incrementPlaylistDownloaded, updatePlaylistCover,
@@ -70,7 +71,7 @@ export const DownloadProvider = ({ children }) => {
     resetState();
     await ensureRoot();
 
-    const serverUrl = await AsyncStorage.getItem('serverUrl');
+    const serverUrl = await getServerUrl();
     const token     = await AsyncStorage.getItem('token');
     serverUrlRef.current = serverUrl;
     tokenRef.current     = token;
