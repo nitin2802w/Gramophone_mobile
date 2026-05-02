@@ -54,21 +54,35 @@ export const apiCall = async (path, method = 'GET', body = null) => {
 
 // ── Register user ──────────────────────────────────────────────────────────────
 export const registerUser = async (name) => {
-  const res = await fetch(`${SERVER_URL}/api/register`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ name }),
-  });
-  return await res.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(`${SERVER_URL}/api/register`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ name }),
+      signal:  controller.signal,
+    });
+    return await res.json();
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 // ── Check server status ────────────────────────────────────────────────────────
 export const checkStatus = async () => {
-  const res = await fetch(`${SERVER_URL}/api/status`, {
-    method:  'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return await res.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(`${SERVER_URL}/api/status`, {
+      method:  'GET',
+      headers: { 'Content-Type': 'application/json' },
+      signal:  controller.signal,
+    });
+    return await res.json();
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 // ── Get playlists ──────────────────────────────────────────────────────────────

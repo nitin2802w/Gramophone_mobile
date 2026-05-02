@@ -12,7 +12,7 @@
     },
     "android": {
       "package": "com.gramophone.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "usesCleartextTraffic": true,
       "permissions": [
         "READ_EXTERNAL_STORAGE",
@@ -24,7 +24,15 @@
       ]
     },
     "plugins": [
-      "expo-av"
+      "expo-av",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {
