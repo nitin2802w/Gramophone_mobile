@@ -143,8 +143,6 @@ def download_thread(url: str, username: str):
             'noplaylist': True,
             'quiet':      True,
             'cookiefile': os.path.join(settings.BASE_DIR, 'cookies.txt'),
-            'js-runtimes': 'node',
-            'remote-components': 'ejs:github',
             'postprocessors': [{
                 'key':              'FFmpegExtractAudio',
                 'preferredcodec':   'mp3',
